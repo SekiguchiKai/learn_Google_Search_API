@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"time"
+	"github.com/SekiguchiKai/learn_Google_Search_API/util"
+)
 
 const (
 	Static LangType = "Static"
@@ -37,3 +40,16 @@ type ProgramLang struct {
 }
 
 
+func NewProgramLang(param ProgramLang) ProgramLang {
+	param.ID = newUserID(param.Name, param.LangType)
+	return param
+}
+
+func UpdatedProgramLang(source, param ProgramLang) ProgramLang {
+	param.Description = source.Description
+	return param
+}
+
+func newUserID(name string, langType LangType) string {
+	return util.GetHash(name + "@@" + string(langType))
+}

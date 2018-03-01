@@ -53,6 +53,26 @@ func (s ProgramLangSearch) GetProgramLangList(startID string, limit int, dst *mo
 	return nil
 }
 
+func (s ProgramLangSearch) GetProgramLang(id string, dst *model.ProgramLang) (bool,error) {
+	if id == "" {
+		return false, nil
+	}
+
+	if  err := s.Index.Get(s.Ctx, model.ProgramLang.ID, dst); err != nil {
+		if err != search.ErrNoSuchDocument {
+			return false, err
+		}
+		return false, nil
+	}
+	return true, nil
+
+}
+
+func (s ProgramLangSearch) ExistsProgramLang(id string) (bool, error) {
+	var dst model.ProgramLang
+	return s.GetProgramLang(id, &dst)
+}
+
 // Search APIにProgramLangを元にDocumentを格納する
 func (s ProgramLangSearch) PutProgramLang(src model.ProgramLang) error {
 	if _, err := s.Index.Put(s.Ctx, model.ProgramLang.ID, src); err != nil {
