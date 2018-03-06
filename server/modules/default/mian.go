@@ -4,7 +4,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/SekiguchiKai/learn_Google_Search_API/api"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/api"
 )
 
 const _APIPath = "/api"

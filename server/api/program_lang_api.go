@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/SekiguchiKai/learn_Google_Search_API/model"
-	"github.com/SekiguchiKai/learn_Google_Search_API/search_store"
-	"github.com/SekiguchiKai/learn_Google_Search_API/util"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/model"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/search_store"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/util"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -23,9 +23,45 @@ type programLangQueryParams struct {
 
 func InitProgramLangAPI(g *gin.RouterGroup) {
 	g.GET("/langList", getProgramLangList)
+	g.GET("/lang/:id", getProgramLang)
 	g.POST("/lang/new", createProgramLang)
 	g.PUT("/lang/:id", updateProgramLang)
 	g.DELETE("/lang/:id", deleteProgramLang)
+}
+
+//func searchProgramLangList(c *gin.Context) {
+//	util.InfoLog(c, "searchProgramLangList is called")
+//
+//	params, err := newProgramLangQueryParam(c)
+//	if err != nil {
+//		util.RespondAndLog(c, http.StatusBadRequest, err.Error())
+//	}
+//}
+
+func getProgramLang(c *gin.Context) {
+	util.InfoLog(c, "getProgramLang is called")
+
+	id := getProgramLangID(c)
+	if id == "" {
+		util.RespondAndLog(c, http.StatusBadRequest, "id is required")
+	}
+
+	var prl model.ProgramLang
+	s, err := search_store.NewProgramLangSearch(c.Request)
+	if err != nil {
+		util.RespondAndLog(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if exists, err := s.GetProgramLang(id, &prl); err != nil {
+		util.RespondAndLog(c, http.StatusInternalServerError, err.Error())
+		return
+	} else if !exists {
+		util.RespondAndLog(c, http.StatusBadRequest, "invalid id : %s", id)
+		return
+	}
+
+	c.JSON(http.StatusOK, prl)
 }
 
 func getProgramLangList(c *gin.Context) {
@@ -34,6 +70,7 @@ func getProgramLangList(c *gin.Context) {
 	params, err := newProgramLangQueryParam(c)
 	if err != nil {
 		util.RespondAndLog(c, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	if params.Limit <= 0 {
@@ -45,6 +82,7 @@ func getProgramLangList(c *gin.Context) {
 	s, err := search_store.NewProgramLangSearch(c.Request)
 	if err != nil {
 		util.RespondAndLog(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	var list model.ProgramLangOptionList
@@ -72,6 +110,7 @@ func createProgramLang(c *gin.Context) {
 		return
 	}
 
+	// IDを付与する
 	prl := model.NewProgramLang(params)
 	prl.UpdatedAt = time.Now().UTC()
 
@@ -143,8 +182,8 @@ func deleteProgramLang(c *gin.Context) {
 		util.RespondAndLog(c, http.StatusInternalServerError, err.Error())
 	}
 
-	var u model.ProgramLang
-	if exists, err := s.GetProgramLang(id, &u); err != nil {
+	var prl model.ProgramLang
+	if exists, err := s.GetProgramLang(id, &prl); err != nil {
 		util.RespondAndLog(c, http.StatusInternalServerError, err.Error())
 	} else if !exists {
 		util.RespondAndLog(c, http.StatusNotFound, "id = %s is not found", id)

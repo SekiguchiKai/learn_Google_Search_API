@@ -2,7 +2,7 @@ package search_store
 
 import (
 	"context"
-	"github.com/SekiguchiKai/learn_Google_Search_API/model"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/model"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/search"
 	"net/http"

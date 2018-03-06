@@ -2,7 +2,7 @@ package model
 
 import (
 	"time"
-	"github.com/SekiguchiKai/learn_Google_Search_API/util"
+	"github.com/SekiguchiKai/learn_Google_Search_API/server/util"
 )
 
 const (
